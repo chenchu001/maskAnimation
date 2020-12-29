@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鼠标经过图片跟随蒙版</title>
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+  <div class="index-wrapper">
+    <div class="box">
+      <div class="num">
+        <b id="increment-num" data-num="1863404"></b>
+        <p>
+          <img src="static/images/01.png" alt="">
+        </p>
+      </div>
+    </div>
+    <div class="index-item">
+      <div class="index-list">
+        <img src="static/images/01.jpg">
+        <div class="mask">
+          <a href="javascript:;">
+            <p>苏轼行书治平贴卷</p>
+            <p>北宋</p>
+            <p>纵29.2厘米，横45.2厘米</p>
+            <p>此帖是苏轼书写的信札，内容主要是委托乡僧照管坟茔之事。该帖笔法精细，字体遒媚，与苏轼早年书法特征吻合，正如赵孟頫所称“字划风流韵胜”。</p>
+          </a>
+        </div>
+      </div>
+      <div class="index-list">
+        <img src="static/images/02.jpg">
+        <div class="mask">
+          <a href="javascript:;">
+            <p>王诜渔村小雪图卷</p>
+            <p>北宋</p>
+            <p>纵44.5厘米，横219.5厘米</p>
+            <p>此图描绘冬季小雪初霁的渔村山林景色，反映了文人逸士向往山林隐逸生活的雅致情怀。体现了北宋文人画中“诗中有画，画中有诗”的创作主旨，是“诗画一律”的典范。</p>
+          </a>
+        </div>
+      </div>
+      <div class="index-list">
+        <img src="static/images/03.jpg">
+        <div class="mask">
+          <a href="javascript:;">
+            <p>欧阳修行楷书灼艾帖卷</p>
+            <p>北宋</p>
+            <p>纵25厘米，横18厘米</p>
+            <p>此帖是欧阳修写给自己的学生焦千之的，对其身体状况表示关心，并邀其来家相见。苏轼评价他的字“清眸丰颊，进退晔如”。</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  let list = document.querySelectorAll('.index-list')
+  list.forEach(item => {
+    item.onmouseenter = function (event) {
+      maskAnimation(event, true)
+    }
+    item.onmouseleave = function (event) {
+      maskAnimation(event, false)
+    }
+  })
+
+  function maskAnimation(event, is_enter) {
+    let direction_index = 0
+    const direction_list = ['top', 'right', 'bottom', 'left']
+    // 鼠标进入元素时的坐标
+    const x = event.clientX
+    const y = event.clientY
+    // dom 元素中心点的坐标
+    const rect_dom = event.target.getBoundingClientRect()
+    const x0 = rect_dom.left + rect_dom.width / 2
+    const y0 = rect_dom.top + rect_dom.height / 2
+    const k0 = (rect_dom.height) / (rect_dom.width)
+    // 当前鼠标点斜率
+    const k = (y - y0) / (x - x0)
+    if (k <= k0 && k >= -k0) {
+      // 左右进出
+      direction_index = x >= x0 ? 1 : 3;
+    } else {
+      // 上下进出
+      direction_index = y >= y0 ? 2 : 0;
+    }
+    direction_list.forEach(item => {
+      event.target.childNodes[3].classList.remove(`${is_enter ? 'leave' : 'enter'}_${item}`);
+    })
+    event.target.childNodes[3].classList.add(`${is_enter ? 'enter' : 'leave'}_${direction_list[direction_index]}`)
+  }
+
+  function numIncrement(targetEle, options) {
+    options = options || {}
+    // 获取 DOM 元素
+    let $this = document.getElementById(targetEle)
+    // 跳转到最终数字的时间
+    let time = options.time || 4000
+    // 最终要显示的数字
+    let finalNum = options.num || $this.getAttribute('data-num')
+    // 调节器(毫秒数) 改变数字增加速度
+    let rate = options.rate || 100
+    // 步长
+    let step = finalNum / (time / rate)
+    // 计数器
+    let count = 0
+    // 初始值
+    let initNum = 0
+    // 定时器
+    let timer = setInterval(() => {
+      count = count + step
+      if (count >= finalNum) {
+        clearInterval(timer)
+        count = finalNum
+      }
+      let t = Math.floor(count)
+      if (t === initNum) return
+      initNum = t
+      $this.innerHTML = toThousands(initNum)
+    }, 50)
+  }
+
+  function toThousands(num) {
+    return (num || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
+  }
+
+  numIncrement("increment-num")
+</script>
+
+</html>
